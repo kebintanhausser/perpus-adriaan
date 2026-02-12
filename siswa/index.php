@@ -1,75 +1,159 @@
 <?php
-include '../incld/koneksi.php';
+session_start();
+if (!isset($_SESSION['role']) || $_SESSION['role'] != 'siswa') {
+  header("Location: ../auth/masuk.php");
+  exit;
+}
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Perpustakaan Sekolah</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Perpustakaan Siswa</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f4f4f4;
+    }
+
+    /* HEADER */
+    .navbar-custom {
+      background: linear-gradient(to right, #5f2eea, #7a5cff);
+    }
+
+    .navbar-custom .navbar-brand,
+    .navbar-custom .nav-link {
+      color: white !important;
+      font-weight: 600;
+    }
+
+    /* CATEGORY CARD */
+    .category-card {
+      background: linear-gradient(to bottom, #5f2eea, #4a2bbf);
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      color: white;
+      transition: 0.3s;
+    }
+
+    .category-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .category-card img {
+      width: 50px;
+      margin-bottom: 10px;
+    }
+
+    /* BOOK CARD */
+    .book-card {
+      background: linear-gradient(to bottom, #5f2eea, #4a2bbf);
+      border-radius: 20px;
+      padding: 15px;
+      color: white;
+    }
+
+    .book-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 15px;
+    }
+
+    .book-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .price {
+      font-size: 13px;
+    }
+
+    .btn-status {
+      border-radius: 20px;
+      font-size: 13px;
+      padding: 5px 15px;
+    }
+
+    .btn-pinjam {
+      background-color: #7a5cff;
+      color: white;
+    }
+
+    .btn-dipinjam {
+      background-color: white;
+      color: #5f2eea;
+    }
+  </style>
 </head>
-<body class="bg-light">
 
-<div class="container-fluid mt-5">
- <h1 class="d-flex justify-content-start">Kategori Buku</h1>
-</div>
+<body>
 
-<div class="container">
-  <div class="row justify-content-center gap-2">
-    <?php
-    // Ambil semua kategori dari database
-    $kategori = mysqli_query($conn, "SELECT * FROM kategori ORDER BY kategori_buku ASC");
-    while ($row = mysqli_fetch_assoc($kategori)):
-    ?>
-      <div class="col-lg-1 ms-2">
-        <div class="card" style="width: 110px; height: 180px; border-radius: 150px;">
-          <div class="card-body d-flex flex-column justify-content-between">
-            <img src="../uploads/<?= htmlspecialchars($row['foto'] ?: 'default.jpg'); ?>" class="mt-4"> 
-             <p style="font-size: 12px;" class="text-center"><?= htmlspecialchars($row['kategori_buku']); ?></p>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-custom px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand">PERPUSTAKAAN SMK PAB 2 HELVETIA</a>
+      <div>
+        <a href="#" class="nav-link d-inline me-3">CEK PINJAM</a>
+        <a href="../auth/logout.php" class="nav-link d-inline">KELUAR</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <!-- KATEGORI -->
+    <h4 class="fw-bold">Kategori Buku</h4>
+
+    <div class="row g-3 mt-2">
+      <?php
+      $kategori = ["Novel", "Romansa", "Horror", "Sejarah", "Komedi", "Biografi", "Fantasi"];
+      foreach ($kategori as $k) {
+      ?>
+        <div class="col-md-2 col-6">
+          <div class="category-card">
+            <img src="../assets/<?= strtolower($k); ?>.png">
+
+            <div><?= $k ?></div>
           </div>
         </div>
-      </div>
-    <?php endwhile; ?>
-  </div>
-</div>
+      <?php } ?>
+    </div>
 
-<!-- Buku -->
-<div class="container">
-  <h1>Buku</h1>
-</div>
+    <!-- STOCK -->
+    <h4 class="fw-bold mt-5">Stock Buku</h4>
 
-<div class="container mt-4">
-  <div class="row g-5">
-    <?php
-    // Ambil semua buku dan kategori terkait
-    $buku = mysqli_query($conn, "
-      SELECT b.*, k.kategori_buku 
-      FROM buku b 
-      LEFT JOIN kategori k ON b.id_kategori = k.id_kategori 
-      ORDER BY b.id_buku DESC
-    ");
-    while ($row = mysqli_fetch_assoc($buku)):
-    ?>
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-        <div class="card bg-primary text-white mb-5" style="border-radius: 20px;">
-          <div class="card-body d-flex flex-column justify-content-between">
-            <img src="../uploads/<?= htmlspecialchars($row['cover'] ?: 'default.jpg'); ?>" 
-                 alt="<?= htmlspecialchars($row['judul']); ?>" 
-                 class="img-fluid rounded-5 mt-3 m-auto" 
-                 style="width: auto; height: auto; object-fit: cover;">
-            <h2 class="card-title fs-5 mt-3"><?= htmlspecialchars($row['judul']); ?></h2>
-            <h2 class="card-title fs-6 mt-1">Stok: <?= (int)$row['stok']; ?></h2>
-            <button class="btn btn-light text-primary w-100 mt-3 fw-semibold mb-2">
-              Pinjam Buku
-            </button>
+    <div class="row g-4 mt-2">
+
+      <?php
+      // Dummy data (replace with database later)
+      for ($i = 1; $i <= 7; $i++) {
+      ?>
+        <div class="col-md-3 col-6">
+          <div class="book-card">
+            <img src="../assets/book.jpg" alt="">
+            <div class="book-title">Judul Buku <?= $i ?></div>
+            <div class="price">Rp. 50.000</div>
+            <div class="text-end mt-2">
+              <?php if ($i % 2 == 0) { ?>
+                <button class="btn btn-status btn-dipinjam">Sedang Dipinjam</button>
+              <?php } else { ?>
+                <button class="btn btn-status btn-pinjam">Pinjam</button>
+              <?php } ?>
+            </div>
           </div>
         </div>
-      </div>
-    <?php endwhile; ?>
+      <?php } ?>
+
+    </div>
+
   </div>
-</div>
 
 </body>
+
 </html>
