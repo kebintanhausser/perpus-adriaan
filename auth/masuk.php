@@ -10,7 +10,10 @@ if (isset($_POST['login'])) {
     $query = mysqli_query($conn, "SELECT * FROM users WHERE username='$username' LIMIT 1");
     $data = mysqli_fetch_assoc($query);
 
-    if ($data && password_verify($password, $data['password'])) {
+    if ($data && (
+        $password == $data['password'] ||
+        password_verify($password, $data['password'])
+    )) {
 
         $_SESSION['id_user'] = $data['id_user'];
         $_SESSION['nama_lengkap'] = $data['nama_lengkap'];
@@ -226,21 +229,27 @@ if (isset($_POST['login'])) {
                     </div>
 
 
-                    <label>Email</label>
-                    <input type="email" class="form-control mb-3" placeholder="OGTTDMITHICS@example.com">
+                    <form method="POST" action="">
 
-                    <label>Password</label>
-                    <input type="password" class="form-control mb-2">
+                        <label>Email</label>
+                        <input name="username" class="form-control mb-3" placeholder="Username">
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox">
-                            <label class="form-check-label">Remember me</label>
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control mb-2">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox">
+                                <label class="form-check-label">Remember me</label>
+                            </div>
+                            <a href="#" style="font-size: 14px;">Forget password?</a>
                         </div>
-                        <a href="#" style="font-size: 14px;">Forget password?</a>
-                    </div>
 
-                    <button class="w-100 login-btn text-white">Login</button>
+                        <button type="submit" name="login" class="w-100 login-btn text-white">
+                            Login
+                        </button>
+
+                    </form>
 
                     <div class="bottom-text text-center">
                         Not register yet? <a href="daftar.php">Create an Account!</a>

@@ -17,15 +17,19 @@ if (isset($_POST['register'])) {
     if (mysqli_num_rows($check) > 0) {
         $error = "Username sudah terdaftar!";
     } else {
-        $hasded =  password_hash($password, PASSWORD_DEFAULT);
-    }
-    $query = "INSERT INTO users (username,password,role,nisn,nama_lengkap,kelas,jurusan,wa) VALUES
-('$username', '$hasded', '$siswa', '$nisn', '$nama_lengkap','$kelas', '$jurusan','$wa')";
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
 
-    if (mysqli_query($conn, $query)) {
-        header('Location: ../auth/masuk.php');
-    } else {
-        $error = "Terjadi Kesalahan: " . mysqli_error($conn);
+        $role = 'siswa'; // default role
+
+        $query = "INSERT INTO users (username,password,role,nisn,nama_lengkap,kelas,jurusan,wa) VALUES
+    ('$username', '$hashed', '$role', '$nisn', '$nama_lengkap','$kelas', '$jurusan','$wa')";
+
+        if (mysqli_query($conn, $query)) {
+            header('Location: ../auth/masuk.php');
+            exit;
+        } else {
+            $error = "Terjadi Kesalahan: " . mysqli_error($conn);
+        }
     }
 }
 
@@ -196,30 +200,40 @@ if (isset($_POST['register'])) {
                     <div class="title">DAFTAR</div>
                     <div class="subtitle">Membaca jendela dunia</div>
 
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <input type="text" class="form-control" placeholder="Username">
-                        </div>
-                        <div class="col-6">
-                            <input type="text" class="form-control" placeholder="NISN">
+                    <form method="POST" action="">
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <input type="text" name="username" class="form-control" placeholder="Username">
+                            </div>
+                            <div class="col-6">
+                                <input type="text" name="nisn" class="form-control" placeholder="NISN">
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text" name="nama_lengkap" class="form-control" placeholder="Name">
+                            </div>
+                            <div class="col-6">
+                                <input type="text" name="kelas" class="form-control" placeholder="Class">
+                            </div>
+
+                            <div class="col-6">
+                                <input type="text" name="wa" class="form-control" placeholder="Whatsapp Number">
+                            </div>
+                            <div class="col-6">
+                                <input type="text" name="jurusan" class="form-control" placeholder="Major">
+                            </div>
+
+                            <div class="col-12">
+                                <input type="password" name="password" class="form-control" placeholder="Password">
+                            </div>
                         </div>
 
-                        <div class="col-6">
-                            <input type="text" class="form-control" placeholder="Name">
-                        </div>
-                        <div class="col-6">
-                            <input type="text" class="form-control" placeholder="Class">
-                        </div>
+                        <button type="submit" name="register" class="w-100 confirm-btn">
+                            Confirm
+                        </button>
 
-                        <div class="col-6">
-                            <input type="text" class="form-control" placeholder="Whatsapp Number">
-                        </div>
-                        <div class="col-6">
-                            <input type="text" class="form-control" placeholder="Major">
-                        </div>
-                    </div>
-
-                    <button class="w-100 confirm-btn">Confirm</button>
+                    </form>
 
                     <div class="form-wrapper position-relative">
 
